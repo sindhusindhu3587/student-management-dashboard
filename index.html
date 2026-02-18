@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Management Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background-color: #f2f2f2;
+        }
+
+        h2 {
+            background: teal;
+            color: white;
+            padding: 10px;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        th {
+            background: teal;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Student Management Dashboard</h2>
+
+<input type="text" id="name" placeholder="Student Name">
+<input type="text" id="roll" placeholder="Roll Number">
+<input type="text" id="course" placeholder="Course">
+<button onclick="addStudent()">Add Student</button>
+
+<br>
+<input type="text" id="search" placeholder="Search by Name" onkeyup="searchStudent()">
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Roll</th>
+            <th>Course</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="studentTable"></tbody>
+</table>
+
+<script>
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function saveData() {
+        localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    function displayStudents(data = students) {
+        let table = document.getElementById("studentTable");
+        table.innerHTML = "";
+
+        data.forEach((student, index) => {
+            table.innerHTML += `
+                <tr>
+                    <td>${student.name}</td>
+                    <td>${student.roll}</td>
+                    <td>${student.course}</td>
+                    <td>
+                        <button onclick="editStudent(${index})">Edit</button>
+                        <button onclick="deleteStudent(${index})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function addStudent() {
+        let name = document.getElementById("name").value;
+        let roll = document.getElementById("roll").value;
+        let course = document.getElementById("course").value;
+
+        if(name && roll && course) {
+            students.push({name, roll, course});
+            saveData();
+            displayStudents();
+            document.getElementById("name").value = "";
+            document.getElementById("roll").value = "";
+            document.getElementById("course").value = "";
+        }
+    }
+
+    function deleteStudent(index) {
+        students.splice(index, 1);
+        saveData();
+        displayStudents();
+    }
+
+    function editStudent(index) {
+        let student = students[index];
+        document.getElementById("name").value = student.name;
+        document.getElementById("roll").value = student.roll;
+        document.getElementById("course").value = student.course;
+
+        deleteStudent(index);
+    }
+
+    function searchStudent() {
+        let searchValue = document.getElementById("search").value.toLowerCase();
+        let filtered = students.filter(student =>
+            student.name.toLowerCase().includes(searchValue)
+        );
+        displayStudents(filtered);
+    }
+
+    displayStudents();
+</script>
+
+</body>
+</html>
